@@ -36,25 +36,6 @@ img{max-width:100%;display:block;margin:8px 0;}
 button{cursor:pointer;}
 .flex-between{display:flex;justify-content:space-between;align-items:center;}
 .longpress-btn{background:#eee;border:1px solid #ccc;padding:4px 8px;border-radius:4px;user-select:none;cursor:pointer;}
-.button {
-    padding: 8px 16px;
-    font-size: 16px;
-    font-weight: 500;
-    border-radius: 6px;
-    border: none;
-    background: linear-gradient(135deg, #4CAF50, #45A049);
-    color: #fff;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-.button:hover {
-    filter: brightness(1.1);
-    transform: translateY(-2px);
-}
-.button:active {
-    transform: translateY(0);
-    filter: brightness(0.9);
-}
 </style>
 </head>
 <body>
@@ -292,7 +273,7 @@ async function loadMetaOnce(){
       menuPopup.className = 'menu-popup';
 
       const copyBtn = document.createElement('button');
-      copyBtn.textContent = 'Copy';
+      copyBtn.textContent = '❐';
       copyBtn.onclick = async(e)=>{
         e.stopPropagation();
         const snap = await getDoc(
@@ -304,7 +285,7 @@ async function loadMetaOnce(){
       };
 
       const delBtn = document.createElement('button');
-      delBtn.textContent = '❌';
+      delBtn.textContent = '🗑️';
       delBtn.onclick = async(e)=>{
         e.stopPropagation();
         m.deleted = true;
