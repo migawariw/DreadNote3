@@ -36,7 +36,7 @@ img{max-width:100%;display:block;margin:8px 0;}
 button{cursor:pointer;}
 .flex-between{display:flex;justify-content:space-between;align-items:center;}
 .longpress-btn{background:#eee;border:1px solid #ccc;padding:4px 8px;border-radius:4px;user-select:none;cursor:pointer;}
-button {
+.button {
     padding: 8px 16px;
     font-size: 16px;
     font-weight: 500;
@@ -47,17 +47,14 @@ button {
     cursor: pointer;
     transition: all 0.2s ease;
 }
-
-button:hover {
+.button:hover {
     filter: brightness(1.1);
     transform: translateY(-2px);
 }
-
-button:active {
+.button:active {
     transform: translateY(0);
     filter: brightness(0.9);
 }
-
 </style>
 </head>
 <body>
@@ -75,9 +72,9 @@ button:active {
   <div class="flex-between">
     <h2>Notes</h2>
     <div style="display:flex;gap:8px;align-items:center;">
-      <button id="new-memo">＋</button>　
+      <button id="new-memo">＋</button>
       <button id="go-trash">🗑️</button>
-      <img id="user-icon" src="" title="User Menu"><br>
+      <img id="user-icon" src="" title="User Menu">
       <div id="user-menu">
         <!-- <button id="switch-account">アカウント切替</button> -->
         <button id="logout-btn">LogOut</button>
@@ -295,7 +292,7 @@ async function loadMetaOnce(){
       menuPopup.className = 'menu-popup';
 
       const copyBtn = document.createElement('button');
-      copyBtn.textContent = '❐';
+      copyBtn.textContent = 'Copy';
       copyBtn.onclick = async(e)=>{
         e.stopPropagation();
         const snap = await getDoc(
@@ -307,7 +304,7 @@ async function loadMetaOnce(){
       };
 
       const delBtn = document.createElement('button');
-      delBtn.textContent = '🗑️';
+      delBtn.textContent = '❌';
       delBtn.onclick = async(e)=>{
         e.stopPropagation();
         m.deleted = true;
@@ -348,7 +345,7 @@ async function loadMetaOnce(){
 //     const menuPopup=document.createElement('div'); menuPopup.className='menu-popup';
 //     const copyAction=document.createElement('button'); copyAction.textContent='Copy';
 //     copyAction.onclick=async(e)=>{ e.stopPropagation(); navigator.clipboard.writeText(data.content||''); showToast('Copied'); menuPopup.style.display='none'; }
-//     const deleteAction=document.createElement('button'); deleteAction.textContent='🗑️';
+//     const deleteAction=document.createElement('button'); deleteAction.textContent='❌';
 //     deleteAction.onclick=async(e)=>{ e.stopPropagation(); await setDoc(doc(db,'users',auth.currentUser.uid,'memos',data.id),{deletedAt:Date.now()},{merge:true}); showToast('Moved to Trash'); menuPopup.style.display='none'; }
 //     menuPopup.append(copyAction,deleteAction);
 //     menuBtn.onclick=(e)=>{ e.stopPropagation(); menuPopup.style.display=(menuPopup.style.display==='block')?'none':'block'; }
