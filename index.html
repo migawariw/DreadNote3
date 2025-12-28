@@ -7,35 +7,166 @@
 <link rel="apple-touch-icon" href="DreadNote/favicon2.png" sizes="180x180">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-body{margin:0;padding:16px;font-family:sans-serif;font-size:16px;}
-section{max-width:800px;margin:auto;position:relative;}
-[hidden]{display:none;}
-input,button{font-size:16px;margin:4px 0;}
-ul{padding-left:0;margin:0;}
-li{list-style:none;padding:8px;border-bottom:1px solid #ddd;display:flex;justify-content:space-between;align-items:center;position:relative;user-select:none;cursor:default;}
-li:hover{background:#f5f5f5;}
-li .memo-title{flex:1;white-space: nowrap;overflow:hidden;text-overflow: ellipsis;margin-right:8px;}
-.menu-btn, .longpress-btn{user-select:none;}
-#title{width:100%;font-size:20px;margin:8px 0;border:none;padding:0;box-sizing:border-box;}
-#editor{min-height:70vh;outline:none;white-space:pre-wrap;word-break:break-word;border-top:1px solid #ccc;padding-top:16px;}
-img{max-width:100%;display:block;margin:8px 0;}
-.video{position:relative;width:100%;padding-top:56.25%;margin:12px auto;}
-.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
-@media(max-width:768px){.video{max-width:100%;}}
-.memo-right{display:flex;align-items:center;gap:8px;}
-.date-span{font-size:0.7em;color:#666;flex-shrink:0;}
-.menu-btn{background:none;border:none;font-size:16px;cursor:pointer;}
-.menu-popup{position:absolute;top:100%;right:0;background:#fff;border:1px solid #ccc;padding:4px 0;box-shadow:0 2px 6px rgba(0,0,0,0.2);display:none;z-index:10;}
-.menu-popup button{width:100%;text-align:left;padding:4px 12px;background:none;border:none;cursor:pointer;}
-.menu-popup button:hover{background:#eee;}
-#user-icon{width:32px;height:32px;border-radius:50%;cursor:pointer;position:relative;}
-#user-menu{position:absolute;top:40px;right:0;background:#fff;border:1px solid #ccc;display:none;z-index:100;white-space:nowrap;}
-#toast{display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:12px 24px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity 0.3s ease;z-index:1000;}
-#toast.show{display:block;opacity:1;pointer-events:auto;}
-.preview-popup{display:none;position:fixed;background:#fff;border:1px solid #333;padding:8px;z-index:1000;max-width:80%;box-shadow:0 2px 6px rgba(0,0,0,0.3);}
-button{cursor:pointer;}
-.flex-between{display:flex;justify-content:space-between;align-items:center;}
-.longpress-btn{background:#eee;border:1px solid #ccc;padding:4px 8px;border-radius:4px;user-select:none;cursor:pointer;}
+/* 基本設定 */
+body {
+    margin: 0;
+    padding: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", sans-serif;
+    font-size: 17px; /* 少し大きめ */
+    line-height: 1.6;
+    color: #333;
+    background: #fafafa;
+}
+
+section {
+    max-width: 800px;
+    margin: auto;
+    position: relative;
+}
+
+/* ボタン全般 */
+button {
+    font-size: 17px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* ログイン周りのボタン */
+.login-btn {
+    background: #4A90E2;
+    color: #fff;
+    font-weight: 600;
+    margin: 8px 0;
+}
+
+.login-btn:hover {
+    filter: brightness(1.1);
+}
+
+/* アウトライン・サブボタン */
+button.outline {
+    background: #fff;
+    border: 2px solid #ccc;
+    color: #333;
+}
+
+button.outline:hover {
+    background: #f0f0f0;
+}
+
+/* メニュー系ボタン */
+.menu-btn, .longpress-btn {
+    background: #eee;
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-left: 8px;
+}
+
+/* メニュー間隔・押しやすく */
+.menu-popup button {
+    width: 100%;
+    text-align: left;
+    padding: 12px 16px; /* 大きめにして押しやすく */
+    margin: 4px 0;
+    font-size: 16px;
+    border-radius: 6px;
+    background: #fff;
+    border: 1px solid #ddd;
+}
+
+.menu-popup button:hover {
+    background: #f0f0f0;
+}
+
+/* アカウントアイコンメニューを下に表示 */
+#user-menu {
+    top: 50px; /* 少し下にずらす */
+    right: 0;
+    background: #fff;
+    border: 1px solid #ccc;
+    display: none;
+    z-index: 100;
+    white-space: nowrap;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* エディタ */
+#editor {
+    min-height: 70vh;
+    outline: none;
+    white-space: pre-wrap;
+    word-break: break-word;
+    border-top: 1px solid #ccc;
+    padding-top: 16px;
+    font-size: 18px; /* 一回り大きく */
+    color: #222; /* 黒ではなく少しグレー寄り */
+    line-height: 1.8; /* 行間を広めに */
+    letter-spacing: 0.5px; /* 文字間を少し開ける */
+    background: #fff;
+}
+
+/* リストアイテム */
+li {
+    list-style: none;
+    padding: 12px; /* 少し広くして見やすく */
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    user-select: none;
+    cursor: default;
+}
+
+li:hover {
+    background: #f5f5f5;
+}
+
+/* メモタイトル */
+li .memo-title {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 12px;
+}
+
+/* 日付 */
+.date-span {
+    font-size: 0.75em;
+    color: #666;
+    flex-shrink: 0;
+}
+
+/* 長押しボタン */
+.longpress-btn {
+    background: #eee;
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    border-radius: 6px;
+}
+
+/* ビデオ */
+.video {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%;
+    margin: 12px auto;
+}
+
+.video iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
 </style>
 </head>
 <body>
