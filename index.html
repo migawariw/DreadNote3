@@ -94,6 +94,24 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+// おれおれ　meta取得
+incrementFirestoreCalls('getDoc meta');
+const snap = await getDoc(metaRef);
+
+// メモ一覧取得
+incrementFirestoreCalls('getDocs memos');
+const memosSnap = await getDocs(collection(db,'users',auth.currentUser.uid,'memos'));
+
+// メモ保存
+incrementFirestoreCalls('setDoc memo');
+await setDoc(doc(db,'users',auth.currentUser.uid,'memos',currentMemoId), {title,content,updated}, {merge:true});
+
+// meta保存
+incrementFirestoreCalls('setDoc meta');
+await saveMeta();
+
+// ここまでおれおれ
+
 let metaCache = null;        // ← 目次箱
 const memoCache = {};       // ← 本文キャッシュ
 
@@ -103,6 +121,16 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// Firestore呼び出しカウンターおれおれ
+let firestoreCalls = 0;
+const counterElem = document.getElementById('firestore-counter');
+
+// カウンターを増やして画面に反映する関数
+function incrementFirestoreCalls(label='') {
+  firestoreCalls++;
+  counterElem.textContent = `Firestore calls: ${firestoreCalls} ${label}`;
+}
+//ここまでおれおれ
 /* DOM要素 */
 const views={login:document.getElementById('view-login'),list:document.getElementById('view-list'),trash:document.getElementById('view-trash'),editor:document.getElementById('view-editor')};
 const emailInput=document.getElementById('email');
@@ -166,16 +194,6 @@ window.addEventListener('hashchange', ()=>{
   navigate();
 });
 
-/* Firestoreキャッシュ + 右ボタン + Trash + プレビュー対応 */
-// let unsubscribe=null;
-// async function loadMemos(){
-//   if(unsubscribe) unsubscribe(); // 古いlistener解除
-//   const q=query(collection(db,'users',auth.currentUser.uid,'memos'), orderBy('updated','desc'));
-//   unsubscribe = onSnapshot(q, snap=>{
-//     memosCache = snap.docs.map(d=>({id:d.id,...d.data()}));
-//     renderMemos();
-//   });
-// }
 async function loadMetaOnce(){
   if (metaCache) return metaCache;
 
@@ -236,7 +254,8 @@ async function loadMetaOnce(){
   }
 
   return metaCache;
-}async function loadMemos(){
+}
+async function loadMemos(){
   await loadMetaOnce();
   memoList.innerHTML='';
 
@@ -312,38 +331,7 @@ async function loadMetaOnce(){
 
       memoList.appendChild(li);
     });
-}// function renderMemos(){
-//   memoList.innerHTML='';
-//   memosCache.filter(m=>!m.deletedAt).forEach(data=>{
-//     const li=document.createElement('li');
-//     const titleSpan=document.createElement('span'); titleSpan.className='memo-title'; titleSpan.textContent=data.title||'Untitled';
-//     li.appendChild(titleSpan);
-
-//     const rightDiv=document.createElement('div'); rightDiv.className='memo-right';
-//     const dateSpan=document.createElement('span'); dateSpan.className='date-span';
-//     dateSpan.textContent=new Date(data.updated).toLocaleString('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
-//     const menuBtn=document.createElement('button'); menuBtn.textContent='⋯'; menuBtn.className='menu-btn longpress-btn';
-//     const menuPopup=document.createElement('div'); menuPopup.className='menu-popup';
-//     const copyAction=document.createElement('button'); copyAction.textContent='Copy';
-//     copyAction.onclick=async(e)=>{ e.stopPropagation(); navigator.clipboard.writeText(data.content||''); showToast('Copied'); menuPopup.style.display='none'; }
-//     const deleteAction=document.createElement('button'); deleteAction.textContent='❌';
-//     deleteAction.onclick=async(e)=>{ e.stopPropagation(); await setDoc(doc(db,'users',auth.currentUser.uid,'memos',data.id),{deletedAt:Date.now()},{merge:true}); showToast('Moved to Trash'); menuPopup.style.display='none'; }
-//     menuPopup.append(copyAction,deleteAction);
-//     menuBtn.onclick=(e)=>{ e.stopPropagation(); menuPopup.style.display=(menuPopup.style.display==='block')?'none':'block'; }
-//     rightDiv.append(dateSpan,menuBtn,menuPopup);
-//     li.appendChild(rightDiv);
-
-//     /* 長押しプレビュー */
-//     menuBtn.addEventListener('mousedown',()=>{ longPressTimer=setTimeout(()=>{ showPreview(data.id,data.title,data.content); },500); });
-//     menuBtn.addEventListener('mouseup',()=>{ clearTimeout(longPressTimer); });
-//     menuBtn.addEventListener('mouseleave',()=>{ clearTimeout(longPressTimer); });
-//     menuBtn.addEventListener('touchstart',()=>{ longPressTimer=setTimeout(()=>{ showPreview(data.id,data.title,data.content); },500); });
-//     menuBtn.addEventListener('touchend',()=>{ clearTimeout(longPressTimer); });
-
-//     li.onclick=()=>location.hash=`#/editor/${data.id}`;
-//     memoList.appendChild(li);
-//   });
-// }
+}
 
 /* Trash表示 */
 function loadTrash() {
@@ -436,12 +424,6 @@ async function openEditor(id){
   memoCache[id]=data;
   showEditor(data);
 }
-
-// function showEditor(data){
-//   titleInput.value=data.title||'';
-//   editor.innerHTML=data.content||'';
-//   show('editor');
-// }
 
 function showEditor(data){
   titleInput.value = data.title || '';
@@ -594,11 +576,6 @@ function showPreview(id,title,content){
 }
 
 /* Navigation buttons */
-// document.getElementById('new-memo').onclick=async()=>{
-//   const ref = await addDoc(collection(db,'users',auth.currentUser.uid,'memos'), {title:'',content:'',updated:Date.now(),deletedAt:null});
-// //   memosCache.push({id:ref.id,title:'',content:'',updated:Date.now(),deletedAt:null});
-//   location.hash=`#/editor/${ref.id}`;
-// }
 document.getElementById('go-trash').onclick=()=>{ location.hash='#/trash'; }
 document.getElementById('back-list').onclick=()=>{ location.hash='#/list'; }
 document.getElementById('back').onclick=()=>{ if(history.length>1) history.back(); else location.hash='#/list'; }
@@ -653,10 +630,22 @@ async function navigate(){
     await loadMemos();
   }
 }
-
-/* 初期化 */
-// navigate();
 </script>
+<!-- Firestore呼び出し回数表示 おれおれ-->
+<div id="firestore-counter" style="
+  position:fixed;
+  bottom:16px;
+  right:16px;
+  background:rgba(0,0,0,0.6);
+  color:#fff;
+  padding:8px 12px;
+  border-radius:8px;
+  font-size:14px;
+  z-index:1000;
+">
+  Firestore calls: 0
+</div>
+<!-- Firestore呼び出し回数表示 ここまでおれおれ-->
 </body>
 </html>
   
