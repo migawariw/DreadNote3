@@ -528,54 +528,23 @@ editor.addEventListener('paste', async e => {
     }
   }
 
-  // // 2. ファイル直接貼り付けも同様に画像なら Storage
-  // if (files.length > 0 && files[0].type.startsWith('image/')) {
-  //   const file = files[0];
-  //   const path = `users/${auth.currentUser.uid}/images/${Date.now()}_${file.name}`;
-  //   const fileRef = storageRef(storage, path);
+  // 2. ファイル直接貼り付けも同様に画像なら Storage
+  if (files.length > 0 && files[0].type.startsWith('image/')) {
+    const file = files[0];
+    const path = `users/${auth.currentUser.uid}/images/${Date.now()}_${file.name}`;
+    const fileRef = storageRef(storage, path);
 
-  //   await uploadBytes(fileRef, file);
-  //   const url = await getDownloadURL(fileRef);
+    await uploadBytes(fileRef, file);
+    const url = await getDownloadURL(fileRef);
 
-  //   const img = document.createElement('img');
-  //   img.src = url;
-  //   range.insertNode(img);
-  //   range.collapse(false);
-  //   saveMemo();
-  //   return;
-  // }
-	editor.addEventListener('paste', async e => {
-  const selection = window.getSelection();
-  if (!selection.rangeCount) return;
-  const range = selection.getRangeAt(0);
-
-  const items = e.clipboardData.items || [];
-
-  for (const item of items) {
-    if (item.type.startsWith('image/')) {
-      e.preventDefault();
-      const file = item.getAsFile();
-      const path = `users/${auth.currentUser.uid}/images/${Date.now()}_${file.name}`;
-      const fileRef = storageRef(storage, path);
-
-      try {
-        await uploadBytes(fileRef, file);
-        const url = await getDownloadURL(fileRef);
-
-        const img = document.createElement('img');
-        img.src = url;
-        range.insertNode(img);
-        range.collapse(false);
-
-        if (currentMemoId) saveMemo();
-      } catch(err) {
-        showToast('画像アップロード失敗: ' + err.message);
-      }
-      return;
-    }
+    const img = document.createElement('img');
+    img.src = url;
+    range.insertNode(img);
+    range.collapse(false);
+    saveMemo();
+    return;
   }
 
-	
   // 3. YouTubeリンクや画像URLの自動変換（従来処理をそのまま利用）
   const text = e.clipboardData.getData('text/plain');
 
